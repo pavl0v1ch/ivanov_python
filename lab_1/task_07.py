@@ -1,12 +1,5 @@
-stroka = input("Введите текст: ")
+sec = int(input("Введите количество секунд: "))
+min = sec // 60
+sec_left = sec % 60
 
-if stroka == "":
-    print("Ошибка: строка пуста.")
-else:
-    normalized = stroka.lower()
-    reversed_text = normalized[::-1]
-
-    if normalized == reversed_text:
-        print("Строка является палиндромом.")
-    else:
-        print("Строка не является палиндромом.")
+print(f"{min}:{sec_left}")
