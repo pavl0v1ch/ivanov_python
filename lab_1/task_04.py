@@ -22,9 +22,9 @@ else:
 
     bills_1 = amount
 
-    print("100 руб.:", bills_100)
-    print("50 руб.:", bills_50)
-    print("10 руб.:", bills_10)
-    print("5 руб.:", bills_5)
-    print("2 руб.:", bills_2)
-    print("1 руб.:", bills_1)
+    print(f"100 руб.: {bills_100}")
+    print(f"50 руб.: {bills_50}")
+    print(f"10 руб.: {bills_10}")
+    print(f"5 руб.: {bills_5}")
+    print(f"2 руб.: {bills_2}")
+    print(f"1 руб.: {bills_1}")
