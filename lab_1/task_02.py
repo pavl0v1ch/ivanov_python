@@ -1,13 +1,9 @@
-text = input("Введите текст: ")
+string = input("Введите строку:")
 
-if text == "":
-    print("Ошибка: поле ввода не может быть пустым.")
+if string.strip() == "":
+    print("Пустая строка")
 else:
-    vowels = "aeiou"
-    output = ""
-
-    for symbol in text:
-        if symbol.lower() not in vowels:
-            output += symbol
-
-    print("Итог:", output)
+    vowels = "aeiouAEIOU"
+    table = str.maketrans("", "", vowels)
+    result = string.translate(table)
+    print("Результат:", result)
