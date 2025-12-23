@@ -1,35 +1,77 @@
 import pandas as pd
-import numpy as np
-from faker import Faker
-import random
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-fake = Faker("ru_RU")
-np.random.seed(42)
+#Загрузка данных
+df = pd.read_csv("students.csv")
 
-years = [2021, 2022, 2023, 2024, 2025]
-specialties = ["Физика", "Математика", "Химия", "История Беларуси", "Биология"]
+df["Общий балл"] = (
+    df[["Математика", "Физика", "Химия", "История", "Обществознание"]].clip(upper=50).sum(axis=1) +
+    df["Средний балл аттестата"] * 5
+)
+
+#Динамика среднего балла ЦЭ/ЦТ по предметам
 subjects = ["Математика", "Физика", "Химия", "История", "Обществознание"]
-forms = ["Очная", "Заочная", "Вечерняя"]
+plt.figure(figsize=(10, 6))
+for subj in subjects:
+    sns.lineplot(data=df, x="Год", y=subj, label=subj, errorbar=None)
+plt.title("Средние баллы ЦЭ/ЦТ по предметам")
+plt.xlabel("Год поступления")
+plt.ylabel("Средний балл")
+plt.legend()
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.show()
 
-def generate_student():
-    year = random.choice(years)
-    specialty = random.choice(specialties)
-    scores = {subject: np.random.randint(40, 100) for subject in subjects}
-    avg_exam = round(np.mean(list(scores.values())), 1)
-    avg_certificate = round(np.random.uniform(6.0, 10.0), 1)
-    avg_total = round((avg_exam + avg_certificate) / 2, 1)
-    return {
-        "ФИО": fake.name(),
-        "Год": year,
-        "Специальность": specialty,
-        "Средний балл ЦЭ/ЦТ": avg_exam,
-        "Средний балл аттестата": avg_certificate,
-        "Средний балл при поступлении": avg_total,
-        "Адрес": fake.address().replace("\n", ", "),
-        "Телефон": fake.phone_number(),
-        "Форма обучения": random.choice(forms),
-        **scores
-    }
+#Динамика среднего балла аттестата
+avg_att = df.groupby("Год")["Средний балл аттестата"].mean()
+plt.figure(figsize=(9, 5))
+plt.bar(avg_att.index, avg_att.values, color="forestgreen")
+plt.title("Средний балл аттестата по годам")
+plt.xlabel("Год поступления")
+plt.ylabel("Средний балл")
+plt.tight_layout()
+plt.show()
 
-data = pd.DataFrame([generate_student() for _ in range(500)])
-data.to_csv("students.csv", index=False)
+#Минимальный проходной балл по специальностям
+min_scores = df.groupby(["Год", "Специальность"])["Общий балл"].min().unstack()
+plt.figure(figsize=(10, 5))
+for spec in min_scores.columns:
+    plt.plot(min_scores.index, min_scores[spec], marker="o", label=spec)
+plt.title("Минимальный проходной балл по специальностям")
+plt.xlabel("Год поступления")
+plt.ylabel("Минимальный балл")
+plt.legend()
+plt.grid(alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+#Количество студентов по специальностям
+spec_counts = df["Специальность"].value_counts()
+plt.figure(figsize=(8, 4))
+plt.bar(spec_counts.index, spec_counts.values, color=["navy", "darkred", "darkorange"])
+plt.title("Количество студентов по специальностям")
+plt.ylabel("Количество")
+plt.xticks(rotation=20)
+plt.tight_layout()
+plt.show()
+
+#Статистика по формам обучения с уникальными цветами
+form_counts = df["Форма обучения"].value_counts()
+form_colors = {
+    "Очная": "lightcoral", "Заочная": "skyblue", "Вечерняя": "gold"
+}
+color_list = [form_colors.get(label, "gray") for label in form_counts.index]
+
+plt.figure(figsize=(6, 6))
+plt.pie(form_counts.values, labels=form_counts.index, autopct="%1.1f%%", startangle=90, colors=color_list)
+plt.title("Распределение форм обучения")
+plt.tight_layout()
+plt.show()
+
+#Итоговые показатели
+print("\nИТОГОВЫЕ ПОКАЗАТЕЛИ:")
+print(f"Всего студентов: {len(df)}")
+print(f"Средний общий балл: {df['Общий балл'].mean():.1f}")
+print(f"Максимальный общий балл: {df['Общий балл'].max():.1f}")
+print(f"Минимальный общий балл: {df['Общий балл'].min():.1f}")
